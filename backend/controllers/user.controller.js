@@ -3,8 +3,26 @@ const Project = require("../models/project.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// removed secret constant
-
+ // Helper function to get startup code based on language
+function getStartupCode(language) {
+  if (language === 'python') {
+    return 'print("Hello World")';
+  } else if (language === 'java') {
+    return 'public class Main { public static void main(String[] args) { System.out.println("Hello World"); } }';
+  } else if (language === 'javascript') {
+    return 'console.log("Hello World");';
+  } else if (language === 'cpp') {
+    return '#include <iostream>\nusing namespace std;\nint main() {\n  cout << "Hello World" << endl;\n  return 0;\n}';
+  } else if (language === 'c') {
+    return '#include <stdio.h>\nint main() {\n  printf("Hello World\\n");\n  return 0;\n}';
+  } else if (language === 'go') {
+    return 'package main\nimport "fmt"\nfunc main() {\n  fmt.Println("Hello World")\n}';
+  } else if (language === 'bash') {
+    return 'echo "Hello World"';
+  } else {
+    return '// Hello World';
+  }
+}
 
 // =======================
 // SIGN UP
@@ -151,25 +169,7 @@ exports.createProject = async (req, res) => {
   }
 };
 
-function getStartupCode(language) {
-  if (language === 'python') {
-    return 'print("Hello World")';
-  } else if (language === 'java') {
-    return 'public class Main { public static void main(String[] args) { System.out.println("Hello World"); } }';
-  } else if (language === 'javascript') {
-    return 'console.log("Hello World");';
-  } else if (language === 'cpp') {
-    return '#include <iostream>\nusing namespace std;\nint main() {\n  cout << "Hello World" << endl;\n  return 0;\n}';
-  } else if (language === 'c') {
-    return '#include <stdio.h>\nint main() {\n  printf("Hello World\\n");\n  return 0;\n}';
-  } else if (language === 'go') {
-    return 'package main\nimport "fmt"\nfunc main() {\n  fmt.Println("Hello World")\n}';
-  } else if (language === 'bash') {
-    return 'echo "Hello World"';
-  } else {
-    return '// Hello World';
-  }
-}
+
 exports.saveProject = async (req, res) => {
   try {
     const { projectId, code, token } = req.body;
