@@ -1,7 +1,26 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
-
-let projectSchema = new mongoose.Schema(
-  
+const projectSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    projectLanguage: {
+      type: String,
+      required: true,
+      enum: ["python", "java", "javascript", "cpp", "c", "go", "bash"],
+    },
+    code: {
+      type: String,
+      required: true,
+    },
+    createdBy: {
+      type: String,
+      required: true
+    }
+  },
+  { timestamps: true }
 );
-module.exports = mongoose.model("project", projetSchema);
+
+module.exports = mongoose.model("Project", projectSchema);

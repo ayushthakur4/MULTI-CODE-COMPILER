@@ -1,12 +1,14 @@
 var express = require('express');
-const { signUp, signIn } = require('../controllers/user.controller.js');
+const { signUp, signIn, createProject, saveProject } = require('../controllers/user.controller.js');
 var router = express.Router();
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-router.post('/signUp',signUp);
-router.post('/signIn',signIn);
+router.post('/signUp', signUp);
+router.post('/signIn', signIn);
+router.post('/createProject', createProject);
+router.post('/saveProject', saveProject);
 module.exports = router;

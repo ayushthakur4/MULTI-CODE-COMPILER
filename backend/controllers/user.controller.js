@@ -1,6 +1,14 @@
 const User = require("../models/user.model");
+const Project = require("../models/project.model");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
+// removed secret constant
+
+
+// =======================
+// SIGN UP
+// =======================
 exports.signUp = async (req, res) => {
   try {
     const { fullName, email, password } = req.body;
@@ -37,6 +45,7 @@ exports.signUp = async (req, res) => {
         email: user.email,
       },
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -45,11 +54,13 @@ exports.signUp = async (req, res) => {
   }
 };
 
+// =======================
+// SIGN IN (JWT)
+// =======================
 exports.signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 1 Validate input
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -57,7 +68,6 @@ exports.signIn = async (req, res) => {
       });
     }
 
-    // 2️ Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({
@@ -66,7 +76,6 @@ exports.signIn = async (req, res) => {
       });
     }
 
-    // 3️ Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
@@ -75,10 +84,16 @@ exports.signIn = async (req, res) => {
       });
     }
 
-    // 4️⃣ Login success
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
     res.status(200).json({
       success: true,
       message: "Login successful",
+      token,
       user: {
         id: user._id,
         fullName: user.fullName,
@@ -93,4 +108,110 @@ exports.signIn = async (req, res) => {
     });
   }
 };
+// createProject controller
+// createProject controller
+exports.createProject = async (req, res) => {
+  try {
 
+    let { name, projLanguage, token, version } = req.body;
+    let decoded = jwt.verify(token, process.env.JWT_SECRET);
+    let user = await User.findOne({ _id: decoded.userId });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        msg: "User not found"
+      });
+    };
+
+    // Normalize language
+    const lang = projLanguage ? projLanguage.toLowerCase() : '';
+
+    let project = await Project.create({
+      name: name,
+      projectLanguage: lang,
+      createdBy: user._id,
+      code: getStartupCode(lang),
+      version: version
+    });
+
+
+    return res.status(200).json({
+      success: true,
+      msg: "Project created successfully",
+      projectId: project._id
+    });
+
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      msg: error.message
+    })
+  }
+};
+
+function getStartupCode(language) {
+  if (language === 'python') {
+    return 'print("Hello World")';
+  } else if (language === 'java') {
+    return 'public class Main { public static void main(String[] args) { System.out.println("Hello World"); } }';
+  } else if (language === 'javascript') {
+    return 'console.log("Hello World");';
+  } else if (language === 'cpp') {
+    return '#include <iostream>\nusing namespace std;\nint main() {\n  cout << "Hello World" << endl;\n  return 0;\n}';
+  } else if (language === 'c') {
+    return '#include <stdio.h>\nint main() {\n  printf("Hello World\\n");\n  return 0;\n}';
+  } else if (language === 'go') {
+    return 'package main\nimport "fmt"\nfunc main() {\n  fmt.Println("Hello World")\n}';
+  } else if (language === 'bash') {
+    return 'echo "Hello World"';
+  } else {
+    return '// Hello World';
+  }
+}
+exports.saveProject = async (req, res) => {
+  try {
+    const { projectId, code, token } = req.body;
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const project = await Project.findById(projectId);
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found",
+      });
+    }
+
+    if (project.createdBy.toString() !== user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized to save this project",
+      });
+    }
+
+    project.code = code;
+    await project.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Project saved successfully",
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
