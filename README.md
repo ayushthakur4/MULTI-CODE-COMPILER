@@ -1,10 +1,10 @@
-# 🚀 AI-COMP-GEN - Ultimate Online Compiler
+# 🚀 MULTI-CODE-COMPILER - Ultimate Online Compiler
 
 ![Project Status](https://img.shields.io/badge/Status-Active-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 ![Version](https://img.shields.io/badge/Version-1.0.0-orange)
 
-**AI-COMP-GEN** is a powerful, **multi-language online compiler** designed for developers who value speed, simplicity, and efficiency. Experience a clutter-free coding environment with smooth authentication and robust project management features.
+**MULTI-CODE-COMPILER** is a powerful, **multi-language online compiler** designed for developers who value speed, simplicity, and efficiency. Experience a clutter-free coding environment with smooth authentication and robust project management features.
 
 ---
 
@@ -45,8 +45,8 @@ Follow these steps to set up the project locally on your machine.
 
 1.  **Clone the repository**
     ```bash
-    git clone https://github.com/ayushthakur4/AI-COMP-GEN.git
-    cd AI-COMP-GEN
+    git clone https://github.com/ayushthakur4/MULTI-CODE-COMPILER.git
+    cd MULTI-CODE-COMPILER
     ```
 
 2.  **Navigate to the backend directory**
