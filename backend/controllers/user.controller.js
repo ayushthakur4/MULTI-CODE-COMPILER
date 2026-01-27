@@ -3,7 +3,7 @@ const Project = require("../models/project.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
- // Helper function to get startup code based on language
+// Helper function to get startup code based on language
 function getStartupCode(language) {
   if (language === 'python') {
     return 'print("Hello World")';
@@ -127,7 +127,6 @@ exports.signIn = async (req, res) => {
   }
 };
 // createProject controller
-// createProject controller
 exports.createProject = async (req, res) => {
   try {
 
@@ -169,7 +168,7 @@ exports.createProject = async (req, res) => {
   }
 };
 
-
+//save the project 
 exports.saveProject = async (req, res) => {
   try {
     const { projectId, code, token } = req.body;
@@ -215,3 +214,74 @@ exports.saveProject = async (req, res) => {
     });
   }
 };
+
+// get the projects
+exports.getProjects = async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    let projects = await Project.find({ createdBy: user._id });
+    return res.status(200).json({
+      success: true,
+      projects: projects
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+
+  }
+}
+
+//get single project
+exports.getProject = async (req, res) => {
+  try {
+    const { projectId, token } = req.body;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const project = await Project.findById(projectId);
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found",
+      });
+    }
+
+    if (project.createdBy.toString() !== user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized to access this project",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      project: project
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+
+  }
+}
